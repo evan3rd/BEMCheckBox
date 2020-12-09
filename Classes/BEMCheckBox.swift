@@ -137,6 +137,8 @@ public class BEMCheckBox: UIControl, CAAnimationDelegate {
         }
     }
     
+    public var allowChangeStatus: ((Bool) -> Bool)?
+    
     /** The layer where the box is drawn when the check box is set to On. */
     private var onBoxLayer: CAShapeLayer?
     
@@ -261,11 +263,22 @@ public class BEMCheckBox: UIControl, CAAnimationDelegate {
             return
         }
 
-        setOn(!on, animated: true)
-        if delegate?.responds(to: #selector(BEMCheckBoxDelegate.didTap(_:))) == true {
-            delegate?.didTap?(self)
+        guard let allowChangeStatus = allowChangeStatus else {
+            setOn(!on, animated: true)
+            if delegate?.responds(to: #selector(BEMCheckBoxDelegate.didTap(_:))) == true {
+                delegate?.didTap?(self)
+            }
+            sendActions(for: .valueChanged)
+            return
         }
-        sendActions(for: .valueChanged)
+        
+        if allowChangeStatus(!on) {
+            setOn(!on, animated: true)
+            if delegate?.responds(to: #selector(BEMCheckBoxDelegate.didTap(_:))) == true {
+                delegate?.didTap?(self)
+            }
+            sendActions(for: .valueChanged)
+        }
     }
 
     // MARK: - Helper methods -
