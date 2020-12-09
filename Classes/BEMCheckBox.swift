@@ -137,6 +137,7 @@ public class BEMCheckBox: UIControl, CAAnimationDelegate {
         }
     }
     
+    /// Before status change, we can detect and cancel this change
     public var allowChangeStatus: ((Bool) -> Bool)?
     
     /** The layer where the box is drawn when the check box is set to On. */
@@ -264,23 +265,23 @@ public class BEMCheckBox: UIControl, CAAnimationDelegate {
         }
 
         guard let allowChangeStatus = allowChangeStatus else {
-            setOn(!on, animated: true)
-            if delegate?.responds(to: #selector(BEMCheckBoxDelegate.didTap(_:))) == true {
-                delegate?.didTap?(self)
-            }
-            sendActions(for: .valueChanged)
+            doChangeStatus()
             return
         }
         
         if allowChangeStatus(!on) {
-            setOn(!on, animated: true)
-            if delegate?.responds(to: #selector(BEMCheckBoxDelegate.didTap(_:))) == true {
-                delegate?.didTap?(self)
-            }
-            sendActions(for: .valueChanged)
+            doChangeStatus()
         }
     }
 
+    private func doChangeStatus() {
+        setOn(!on, animated: true)
+        if delegate?.responds(to: #selector(BEMCheckBoxDelegate.didTap(_:))) == true {
+            delegate?.didTap?(self)
+        }
+        sendActions(for: .valueChanged)
+    }
+    
     // MARK: - Helper methods -
 
     // MARK: Increase touch area
